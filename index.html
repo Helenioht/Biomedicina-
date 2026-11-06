@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#102b3b">
+<title>Laboratório de Biomedicina de Helenio</title>
+<style>
+:root{--bg:#071923;--panel:#102b3b;--panel2:#15384a;--line:#285366;--text:#eef8fb;--muted:#a8c2cc;--cyan:#55d6d0;--blue:#6ab8ff;--gold:#ffd27a;--red:#ff9c9c}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#071923,#0b2633 55%,#102d3b);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{padding:24px 18px 20px;background:linear-gradient(120deg,#103849,#14505a);border-bottom:1px solid #2b6570}
+.wrap{max-width:1100px;margin:auto}h1{font-size:clamp(24px,5vw,36px);line-height:1.15;margin:0 0 8px}header p{margin:0;color:#d1e8ec}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+main{max-width:1100px;margin:auto;padding:18px}
+.searchbox{background:var(--panel);padding:16px;border:1px solid var(--line);border-radius:16px;margin-bottom:16px}
+label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:0 0 6px}
+input,textarea,select{width:100%;padding:13px 14px;border:1px solid #386477;border-radius:10px;background:#071e2a;color:var(--text);font:inherit;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #55d6d022}
+.suggestions{display:none;background:#092432;border:1px solid var(--cyan);border-radius:10px;margin-top:4px;max-height:220px;overflow:auto}
+.suggestions.open{display:block}.suggestion{display:block;width:100%;text-align:left;background:transparent;color:var(--text);border:0;border-radius:0;padding:10px 12px;margin:0}.suggestion:hover{background:#1c4858}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:16px 0}
+.navbtn,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:12px;cursor:pointer;font:inherit;text-align:left}
+.navbtn strong{display:block;color:var(--cyan);font-size:15px}.navbtn span{font-size:12px;color:var(--muted)}.navbtn.active{border-color:var(--cyan);background:#123c49}
+.btn{display:inline-block;text-align:center;background:#15515a;border-color:#327c80;padding:10px 14px;font-weight:700;margin:5px 4px 5px 0}.btn.secondary{background:#18384a;border-color:var(--line)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+h2{font-size:22px;margin:0 0 12px}h3{font-size:17px;color:var(--cyan);margin:16px 0 5px}
+p{margin:7px 0 12px}.muted{color:var(--muted)}.tag{display:inline-block;color:#09212a;background:var(--cyan);font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px;margin:2px 4px 2px 0}
+.item{padding:13px 0;border-bottom:1px solid #254858}.item:last-child{border:0}.item h3{margin:0 0 4px}.formula{font-family:ui-monospace,monospace;background:#071e2a;padding:9px 11px;border-radius:8px;display:inline-block;color:var(--gold);margin:5px 0}
+.result{padding:12px;background:#0a3036;border-left:4px solid var(--cyan);border-radius:8px;margin-top:10px}
+.warning{border-left:4px solid var(--gold);background:#382f1b;padding:12px;border-radius:8px;color:#ffebc3;margin:12px 0}
+.quizopt{display:block;width:100%;text-align:left;margin:7px 0;padding:11px;border-radius:9px;border:1px solid var(--line);background:#0a2330;color:var(--text);cursor:pointer}
+footer{padding:22px;text-align:center;color:var(--muted);font-size:12px}
+small{color:var(--muted)}.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+@media(max-width:600px){main{padding:12px}.panel{padding:14px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.navbtn{padding:10px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="eyebrow">Conhecimento • Ciência • Saúde</div>
+<h1>🧬 Laboratório de Biomedicina de Helenio</h1>
+<p>Um espaço interativo para aprender, pesquisar e praticar conceitos de Biomedicina.</p>
+</div></header>
+<main>
+<section class="searchbox">
+<label for="search">O que você deseja estudar?</label>
+<input id="search" autocomplete="off" placeholder="Digite: hemoglobina, bactéria, glicose, anticorpo...">
+<div id="suggestions" class="suggestions"></div>
+<p class="muted"><small>Pesquise por assunto, exame, microrganismo, estrutura ou termo científico.</small></p>
+</section>
+<div class="grid" id="nav"></div>
+<section id="content" class="panel" aria-live="polite"></section>
+<section class="panel">
+<h2>🧪 Calculadoras de laboratório</h2>
+<div class="two">
+<div>
+<h3>Diluição (C₁ × V₁ = C₂ × V₂)</h3>
+<p class="muted">Informe concentração inicial, concentração desejada e volume final. Use unidades compatíveis.</p>
+<label for="c1">Concentração inicial (C₁)</label><input id="c1" type="number" min="0" step="any" placeholder="Ex.: 10">
+<label for="c2">Concentração desejada (C₂)</label><input id="c2" type="number" min="0" step="any" placeholder="Ex.: 2">
+<label for="vf">Volume final (V₂)</label><input id="vf" type="number" min="0" step="any" placeholder="Ex.: 50">
+<button class="btn" onclick="calcDilution()">Calcular volume inicial</button>
+<div id="dilutionResult" class="result" hidden></div>
+</div>
+<div>
+<h3>Concentração molar (M = n / V)</h3>
+<p class="muted">Calcule molaridade a partir da quantidade de matéria em mol e do volume em litros.</p>
+<label for="mol">Quantidade de matéria (mol)</label><input id="mol" type="number" min="0" step="any" placeholder="Ex.: 0,25">
+<label for="liters">Volume (litros)</label><input id="liters" type="number" min="0" step="any" placeholder="Ex.: 0,5">
+<button class="btn" onclick="calcMolarity()">Calcular molaridade</button>
+<div id="molarityResult" class="result" hidden></div>
+</div>
+</div>
+</section>
+<section class="panel">
+<h2>📝 Meu caderno de estudos</h2>
+<label for="noteTitle">Título da anotação</label><input id="noteTitle" placeholder="Ex.: Revisão de hematologia">
+<label for="noteText">Anotação</label><textarea id="noteText" rows="4" placeholder="Escreva aqui o que deseja guardar..."></textarea>
+<button class="btn" onclick="saveNote()">Salvar anotação</button><button class="btn secondary" onclick="downloadNotes()">Baixar caderno (.txt)</button>
+<div id="notes"></div>
+</section>
+<section class="panel">
+<h2>🎓 Teste seus conhecimentos</h2>
+<div id="quiz"></div>
+</section>
+<div class="warning"><strong>Importante:</strong> conteúdo para fins educativos. Valores de referência e interpretação de exames variam conforme laboratório, método, idade, sexo, condições clínicas e outros fatores. Este aplicativo não substitui formação profissional, protocolos laboratoriais, avaliação médica ou validação de resultados.</div>
+</main>
+<footer>Laboratório de Biomedicina de Helenio • Versão educativa 1.0<br>As anotações ficam salvas no armazenamento local deste navegador.</footer>
+<script>
+const sections=[
+{ id:'hematologia',icon:'🩸',name:'Hematologia',desc:'Sangue e células',terms:['sangue','hemácia','hemácias','eritrócito','eritrócitos','hemoglobina','hematócrito','leucócito','leucócitos','plaqueta','plaquetas','hemograma','anemia','coagulação'],body:[
+['Sangue','Tecido líquido formado por plasma e elementos figurados: hemácias, leucócitos e plaquetas.','O plasma transporta substâncias; as células participam do transporte de gases, defesa e hemostasia.'],
+['Hemácias (eritrócitos)','Células responsáveis principalmente pelo transporte de oxigênio por meio da hemoglobina.','Sua produção ocorre na medula óssea e sua vida média é de aproximadamente 120 dias em adultos saudáveis.'],
+['Hemoglobina','Proteína que contém ferro e se liga reversivelmente ao oxigênio.','A dosagem integra o hemograma e auxilia na avaliação de condições como anemias, sempre em contexto clínico.'],
+['Leucócitos','Conjunto de células envolvidas na defesa do organismo.','Incluem neutrófilos, linfócitos, monócitos, eosinófilos e basófilos.'],
+['Plaquetas','Fragmentos celulares importantes para a hemostasia.','Participam da formação do tampão plaquetário e interagem com a cascata de coagulação.'],
+['Hemograma','Exame que avalia séries vermelha, branca e plaquetária.','A interpretação considera índices hematimétricos, diferencial de leucócitos, contagens e intervalos do laboratório.']
+]},
+{ id:'microbiologia',icon:'🦠',name:'Microbiologia',desc:'Bactérias, vírus e fungos',terms:['bactéria','bactérias','vírus','fungo','fungos','cultura','gram','gram-positiva','gram-negativa','microscopia','esterilização','antissepsia'],body:[
+['Bactérias','Microrganismos procariontes, unicelulares, com diferentes formas e metabolismos.','Podem ser cocos, bacilos ou espiralados. Nem todas causam doença; muitas são parte da microbiota.'],
+['Coloração de Gram','Técnica diferencial que separa bactérias em grupos conforme características da parede celular.','Gram-positivas tendem a ficar roxas; Gram-negativas, rosadas. O resultado deve ser associado à amostra e ao contexto.'],
+['Vírus','Agentes infecciosos acelulares que dependem de células hospedeiras para se replicar.','Possuem material genético (DNA ou RNA) envolto por capsídeo; alguns têm envelope lipídico.'],
+['Fungos','Organismos eucariontes que incluem leveduras e fungos filamentosos.','A identificação laboratorial pode envolver microscopia, cultura e métodos moleculares.'],
+['Cultura microbiológica','Método que busca recuperar e estudar microrganismos de uma amostra.','Coleta, transporte, meio de cultura e tempo de incubação influenciam o resultado.']
+]},
+{ id:'parasitologia',icon:'🪱',name:'Parasitologia',desc:'Parasitas e ciclos',terms:['parasita','parasitas','protozoário','protozoários','helminto','helmintos','giardia','ameba','entamoeba','plasmódio','toxoplasma','ovos','cistos'],body:[
+['Protozoários','Organismos eucariontes unicelulares; algumas espécies são parasitas humanos.','Exemplos de importância médica incluem Giardia duodenalis, Entamoeba histolytica e Plasmodium spp.'],
+['Helmintos','Vermes parasitas que podem ser agrupados em nematódeos, cestódeos e trematódeos.','A identificação pode envolver ovos, larvas ou estruturas adultas, conforme o parasita.'],
+['Exame parasitológico de fezes','Pesquisa formas parasitárias em amostras fecais.','A sensibilidade depende da eliminação dos parasitas, coleta, conservação e técnica empregada.'],
+['Ciclo biológico','Sequência de etapas de desenvolvimento de um organismo.','Conhecer hospedeiros, formas infectantes e vias de transmissão ajuda a compreender a epidemiologia.']
+]},
+{ id:'bioquimica',icon:'⚗️',name:'Bioquímica',desc:'Moléculas e metabolismo',terms:['glicose','glicemia','colesterol','triglicerídeos','enzima','enzimas','proteína','proteínas','lipídio','lipídios','metabolismo','ureia','creatinina','albumina','ph'],body:[
+['Glicose','Monossacarídeo que funciona como importante fonte de energia celular.','A glicemia pode ser avaliada em diferentes condições de coleta; jejum e contexto clínico importam.'],
+['Enzimas','Catalisadores biológicos que aceleram reações químicas sem serem consumidos.','Atividade enzimática pode ser medida em ensaios laboratoriais e depende de pH, temperatura e substrato.'],
+['Colesterol','Lipídio essencial às membranas celulares e precursor de hormônios esteroides e ácidos biliares.','O perfil lipídico pode incluir colesterol total, HDL, LDL e triglicerídeos.'],
+['Creatinina','Produto do metabolismo da creatina, eliminado principalmente pelos rins.','É usada, junto a outros dados, na avaliação da função renal; massa muscular e outros fatores influenciam seus níveis.'],
+['Ureia','Produto final do metabolismo nitrogenado, formado no fígado e eliminado pelos rins.','Sua concentração pode variar com hidratação, dieta, função renal e outros fatores.']
+]},
+{ id:'imunologia',icon:'🛡️',name:'Imunologia',desc:'Defesas do organismo',terms:['imunidade','anticorpo','anticorpos','antígeno','antígenos','linfócito','linfócitos','igg','igm','iga','ige','complemento','vacina','inflamação'],body:[
+['Antígeno','Estrutura reconhecida por componentes do sistema imune.','Pode ser reconhecida por anticorpos ou receptores de linfócitos.'],
+['Anticorpos (imunoglobulinas)','Proteínas produzidas por plasmócitos, derivados de linfócitos B.','As classes principais são IgG, IgM, IgA, IgE e IgD, com funções distintas.'],
+['IgM e IgG','Classes de anticorpos frequentemente avaliadas em testes sorológicos.','A presença isolada de uma classe não determina, por si só, quando ocorreu uma infecção; depende do teste e do contexto.'],
+['Imunidade inata e adaptativa','A inata oferece resposta inicial; a adaptativa envolve reconhecimento específico e memória imunológica.','As duas trabalham de forma integrada na defesa do organismo.']
+]},
+{ id:'anatomia',icon:'🫀',name:'Anatomia e fisiologia',desc:'Corpo humano',terms:['coração','pulmão','pulmões','rim','rins','fígado','cérebro','neurônio','neurônios','pâncreas','sistema nervoso','circulação','respiração','nefron','nefrônio'],body:[
+['Coração','Órgão muscular que impulsiona o sangue pela circulação pulmonar e sistêmica.','Possui quatro câmaras: dois átrios e dois ventrículos.'],
+['Rins','Órgãos que filtram o plasma, regulam água e eletrólitos e participam do equilíbrio ácido-base.','Os néfrons são as unidades funcionais dos rins.'],
+['Fígado','Órgão com funções metabólicas, de síntese, armazenamento e detoxificação.','Produz bile, sintetiza albumina e participa do metabolismo de carboidratos, lipídios e proteínas.'],
+['Neurônio','Célula especializada na comunicação por sinais elétricos e químicos.','Dendritos recebem sinais, o corpo celular integra informações e o axônio conduz impulsos.']
+]},
+{ id:'exames',icon:'🔬',name:'Exames laboratoriais',desc:'Para que servem',terms:['hemograma','glicemia','glicose','urina','urocultura','parasitológico','perfil lipídico','colesterol','creatinina','ureia','tsh','t4','pcr','proteína c reativa','ferritina','sorologia'],body:[
+['Hemograma','Avalia componentes celulares do sangue.','Pode apoiar a investigação de anemias, infecções e alterações plaquetárias, mas não estabelece diagnóstico sozinho.'],
+['Glicemia','Mede a concentração de glicose no sangue em uma condição de coleta definida.','Jejum, teste oral de tolerância e hemoglobina glicada são exames diferentes e não devem ser confundidos.'],
+['Urocultura','Busca crescimento de microrganismos em amostra de urina.','Coleta adequada e interpretação junto ao exame de urina e sintomas são fundamentais.'],
+['TSH','Hormônio produzido pela hipófise que regula a atividade da tireoide.','É frequentemente avaliado junto a hormônios tireoidianos, como T4 livre.'],
+['PCR (proteína C reativa)','Proteína de fase aguda que pode aumentar em processos inflamatórios.','É inespecífica: não identifica sozinha a causa ou o local da inflamação.'],
+['Ferritina','Proteína relacionada ao armazenamento de ferro.','Pode refletir reservas de ferro, mas também aumenta em inflamação e outras condições.']
+]},
+{ id:'biosseguranca',icon:'🧤',name:'Biossegurança',desc:'Boas práticas',terms:['biossegurança','epi','epIs','luvas','jaleco','descarte','perfurocortante','risco biológico','cabine de segurança','desinfecção','esterilização'],body:[
+['EPI','Equipamento de proteção individual, como luvas, jaleco, óculos e proteção respiratória quando indicada.','A escolha depende da avaliação de risco e do procedimento. EPI não substitui boas práticas e controles de engenharia.'],
+['Perfurocortantes','Materiais capazes de perfurar ou cortar, como agulhas e lâminas.','Devem ser descartados imediatamente em coletor apropriado, sem reencapar agulhas.'],
+['Desinfecção e esterilização','Desinfecção reduz microrganismos em superfícies; esterilização elimina todas as formas viáveis, inclusive esporos.','O método depende do material, uso previsto e protocolo institucional.'],
+['Amostras biológicas','Materiais como sangue, urina, secreções e tecidos que exigem identificação e manejo adequados.','Seguir normas de coleta, acondicionamento, transporte e rastreabilidade.']
+]}
+];
+
+const nav=document.getElementById('nav'),content=document.getElementById('content');
+let active='hematologia',quizIndex=0,score=0;
+function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderNav(){nav.innerHTML=sections.map(s=>`<button class="navbtn ${s.id===active?'active':''}" data-id="${s.id}"><strong>${s.icon} ${s.name}</strong><span>${s.desc}</span></button>`).join('');nav.querySelectorAll('button').forEach(b=>b.onclick=()=>showSection(b.dataset.id))}
+function showSection(id){active=id;renderNav();let s=sections.find(x=>x.id===id);content.innerHTML=`<h2>${s.icon} ${s.name}</h2><p class="muted">${s.desc}</p>${s.body.map(x=>`<article class="item"><h3>${esc(x[0])}</h3><p>${esc(x[1])}</p><p class="muted">${esc(x[2])}</p></article>`).join('')}`}
+function searchItems(q){let nq=norm(q);let found=[];sections.forEach(s=>s.body.forEach(x=>{if(norm([x[0],x[1],x[2],...s.terms].join(' ')).includes(nq)||s.terms.some(t=>norm(t).includes(nq)))found.push({section:s,title:x[0],desc:x[1],detail:x[2]})}));return found.filter((x,i,a)=>a.findIndex(y=>y.section.id===x.section.id&&y.title===x.title)===i).slice(0,12)}
+const search=document.getElementById('search'),suggest=document.getElementById('suggestions');
+function renderSuggestions(){let q=search.value;if(!norm(q)){suggest.classList.remove('open');suggest.innerHTML='';return}let found=searchItems(q);if(!found.length){suggest.innerHTML='<div class="suggestion">Nenhum assunto encontrado. Tente outro termo.</div>';suggest.classList.add('open');return}suggest.innerHTML=found.map((x,i)=>`<button class="suggestion" data-i="${i}">${x.section.icon} <b>${esc(x.title)}</b> <small>— ${esc(x.section.name)}</small></button>`).join('');suggest.classList.add('open');suggest.querySelectorAll('button[data-i]').forEach((b,i)=>b.onclick=()=>{let x=found[i];active=x.section.id;renderNav();content.innerHTML=`<h2>${x.section.icon} ${esc(x.title)}</h2><span class="tag">${esc(x.section.name)}</span><p>${esc(x.desc)}</p><p class="muted">${esc(x.detail)}</p><button class="btn secondary" onclick="showSection('${x.section.id}')">Ver toda a matéria</button>`;suggest.classList.remove('open');search.value=x.title;content.scrollIntoView({behavior:'smooth',block:'start'})})}
+search.addEventListener('input',renderSuggestions);search.addEventListener('keydown',e=>{if(e.key==='Escape')suggest.classList.remove('open');if(e.key==='Enter'){let first=suggest.querySelector('button[data-i]');if(first)first.click()}});document.addEventListener('click',e=>{if(!e.target.closest('.searchbox'))suggest.classList.remove('open')});
+function calcDilution(){let c1=Number(document.getElementById('c1').value),c2=Number(document.getElementById('c2').value),vf=Number(document.getElementById('vf').value),r=document.getElementById('dilutionResult');r.hidden=false;if(!(c1>0&&c2>0&&vf>0)||c2>c1){r.textContent='Confira os dados: use valores positivos e concentração desejada menor ou igual à inicial.';return}let v=(c2*vf)/c1;r.innerHTML=`Volume da solução inicial (V₁): <b>${v.toLocaleString('pt-BR',{maximumFractionDigits:4})}</b> na mesma unidade do volume final.<br>Complete com diluente até o volume final de ${vf}.`}
+function calcMolarity(){let n=Number(document.getElementById('mol').value),v=Number(document.getElementById('liters').value),r=document.getElementById('molarityResult');r.hidden=false;if(!(n>=0&&v>0)){r.textContent='Informe quantidade em mol e volume em litros maior que zero.';return}r.innerHTML=`Molaridade: <b>${(n/v).toLocaleString('pt-BR',{maximumFractionDigits:6})} mol/L</b>.`}
+function getNotes(){try{return JSON.parse(localStorage.getItem('bioHelenioNotes')||'[]')}catch(e){return []}}
+function saveNote(){let t=document.getElementById('noteTitle').value.trim(),v=document.getElementById('noteText').value.trim();if(!t||!v){alert('Preencha o título e a anotação.');return}let a=getNotes();a.unshift({title:t,text:v,date:new Date().toLocaleString('pt-BR')});localStorage.setItem('bioHelenioNotes',JSON.stringify(a));document.getElementById('noteTitle').value='';document.getElementById('noteText').value='';renderNotes()}
+function renderNotes(){let a=getNotes();document.getElementById('notes').innerHTML=a.length?a.map((n,i)=>`<article class="item"><h3>${esc(n.title)}</h3><small>${esc(n.date)}</small><p>${esc(n.text).replace(/\n/g,'<br>')}</p><button class="btn secondary" onclick="deleteNote(${i})">Excluir</button></article>`).join(''):'<p class="muted">Suas anotações aparecerão aqui.</p>'}
+function deleteNote(i){let a=getNotes();a.splice(i,1);localStorage.setItem('bioHelenioNotes',JSON.stringify(a));renderNotes()}
+function downloadNotes(){let a=getNotes();if(!a.length){alert('Ainda não há anotações.');return}let txt=a.map(n=>`${n.title}\n${n.date}\n${n.text}\n\n----------------\n`).join('\n');let blob=new Blob([txt],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='caderno_biomedicina_helenio.txt';link.click();URL.revokeObjectURL(url)}
+const questions=[
+{q:'Qual componente do sangue transporta principalmente oxigênio?',o:['Plaquetas','Hemácias','Neutrófilos','Plasma'],a:1,e:'As hemácias transportam oxigênio por meio da hemoglobina.'},
+{q:'A coloração de Gram é usada principalmente para diferenciar:',o:['Tipos de vírus','Grupos de bactérias','Tipos de anticorpos','Células sanguíneas'],a:1,e:'A técnica diferencia bactérias conforme características da parede celular.'},
+{q:'Qual classe de imunoglobulina costuma aparecer primeiro na resposta primária?',o:['IgM','IgE','IgA','IgD'],a:0,e:'A IgM é geralmente a primeira classe detectável na resposta primária, mas a interpretação sorológica depende do contexto.'},
+{q:'Qual órgão produz bile?',o:['Rim','Pâncreas','Fígado','Baço'],a:2,e:'O fígado produz bile, que participa da digestão e absorção de lipídios.'},
+{q:'Na fórmula de diluição C₁V₁ = C₂V₂, V₁ representa:',o:['Volume final','Volume da solução inicial','Concentração final','Massa do soluto'],a:1,e:'V₁ é o volume da solução estoque que será utilizado.'}
+];
+function renderQuiz(){let q=questions[quizIndex];document.getElementById('quiz').innerHTML=`<p class="muted">Questão ${quizIndex+1} de ${questions.length} • Acertos: ${score}</p><h3>${q.q}</h3>${q.o.map((v,i)=>`<button class="quizopt" onclick="answerQuiz(${i})">${String.fromCharCode(65+i)}. ${v}</button>`).join('')}<div id="quizFeedback"></div>`}
+function answerQuiz(i){let q=questions[quizIndex],f=document.getElementById('quizFeedback');document.querySelectorAll('.quizopt').forEach(b=>b.disabled=true);if(i===q.a)score++;f.innerHTML=`<div class="result"><b>${i===q.a?'Correto!':'Não foi dessa vez.'}</b> ${q.e}<br><button class="btn" onclick="nextQuiz()">${quizIndex===questions.length-1?'Recomeçar':'Próxima questão'}</button></div>`}
+function nextQuiz(){if(quizIndex===questions.length-1){quizIndex=0;score=0}else quizIndex++;renderQuiz()}
+renderNav();showSection(active);renderNotes();renderQuiz();
+</script>
+</body></html>
